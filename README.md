@@ -1,4 +1,4 @@
-# MQTTClienteReconfigurável
+# NodeMCUReconfigurável
 
 Marlon Soares Sigales 04-02-2021
 
