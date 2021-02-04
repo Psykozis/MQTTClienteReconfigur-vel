@@ -193,13 +193,14 @@ void escreveString(int enderecoBase, String mensagem){   // Salva a string nos e
     for (int i = 0; i<mensagem.length(); i++){ 
        if(mensagem[i]!=EEPROM.read(i+enderecoBase)){ //escreve apenas se for diferente
             EEPROM.write(enderecoBase,mensagem[i]); // Escrevemos cada byte da string de forma sequencial na memória
-            EEPROM.commit();//Salva o dado na EEPROM.
             delay(200);
+            EEPROM.commit();//Salva o dado na EEPROM.
        }     
        enderecoBase++; // Deslocamos endereço base em uma posição a cada byte salvo
     }
      if(EEPROM.read(enderecoBase)!='\0'){
           EEPROM.write(enderecoBase,'\0'); // Salvamos marcador de fim da string 
+          delay(200);
           EEPROM.commit();//Salva o dado na EEPROM.
      }
      Serial.println ("salvo na eprom: "+mensagem);
