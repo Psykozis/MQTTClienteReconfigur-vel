@@ -42,27 +42,7 @@ void paginaconfig(){ //configura ponto de acesso, temporização, mantem conexã
              
              WiFi.softAPdisconnect(true);//mata a rede do ponto de acesso
              
-              // salva o que foi escrito na eprom
-            
-
-//   EEPROM.begin(4);//Inicia a EEPROM com tamanho de 4 Bytes (minimo).
-//   Serial.println(EEPROM.read(0));//Mostra no Monitor oque há antes de efetuar a gravação
-//   if (EEPROM.read(0) != 18)//Se não existir o numero escolhido (18), irá gravar. Isto é necessário para evitar regravações desnecessárias.
-//   {
-//      EEPROM.write(0, 18);//Escreve no endereço "0", o valor "18".
-//      EEPROM.commit();//Salva o dado na EEPROM.
-//      Serial.println(EEPROM.read(0));//Mostra o valor no endereço 0 novamente.
-//   }
-//   else//Se já existir o valor, irá avisar.
-//   {
-//      Serial.println("Dado ja cadastrado");
-//   }
-//   EEPROM.end();//Fecha a EEPROM.
-
-
-
-
-            
+          
             server.close(); //fecha o servidor
   
   }
@@ -81,7 +61,8 @@ String html ="<!DOCTYPE html><html><head><meta name='viewport' content='width=de
 }
 
 void handleForm() { //quando acontece um submit e a chamada do /action_page acontece, essa função captura os valores das caixas de entrada
- String msg,msg1; 
+ String msg;
+ String msg1; 
  String xssid = server.arg("ssid");         //server arg pega o que tem no campo do input com o name especificado
  String xpassword = server.arg("password"); 
  String xIPbrok = server.arg("IPbrok"); 
@@ -89,56 +70,53 @@ void handleForm() { //quando acontece um submit e a chamada do /action_page acon
  String xID = server.arg("ID"); 
  String xroute = server.arg("route"); 
  
- Serial.print("ssid: ");
- Serial.println(xssid);
- Serial.print("senha: ");
- Serial.println(xpassword);
- Serial.print("broker: ");
- Serial.println(xIPbrok);
- Serial.print("porta: ");
- Serial.println(xportbrok);
- Serial.print("cliente: ");
- Serial.println(xID);
- Serial.print("rota do topico: ");
- Serial.println(xroute);
+
+ Serial.println("ssid: "+xssid);
+ Serial.println("senha: "+xpassword);
+ Serial.println("broker: "+xIPbrok);
+ Serial.println("porta: "+xportbrok);
+ Serial.println("cliente: "+xID);
+ Serial.println("rota do topico: "+xroute);
 
  //tamanho de cada info
- uint8_t nssid = xssid.length();
- msg1=nssid
- msg = String(msg1,hex);
- println(msg1);
- println(msg);
+ int nssid = xssid.length();
+ msg = String(nssid,HEX);
+ Serial.println("tamanho da rede "+nssid);
   
- uint8_t npassword = xpassword.length();
- msg +=npassword;    
+ int npassword = xpassword.length();
+ msg += String(npassword,HEX);
+ Serial.println("tamanho da senha "+npassword);
  
- uint8_t nipbrok = xIPbrok.length();
- msg +=nipbrok;  
+ int nipbrok = xIPbrok.length();
+ msg += String(nipbrok,HEX);
+ Serial.println("tamanho do broker "+nipbrok);
  
- uint8_t nportbrok = xportbrok.length();
+ int nportbrok = xportbrok.length();
+ msg += String(nportbrok,HEX);
+ Serial.println("tamanho da porta "+nportbrok);
  
- msg +=nportbrok; 
+ int nid = xID.length();
+ msg += String(nid,HEX);
+ Serial.println("tamanho do id "+nid);
+    
+ int nroute = xroute.length();
+ msg += String(nroute,HEX);
+ Serial.println("tamanho da rota "+nroute); 
  
- uint8_t nid = xID.length();
- msg += nid;   
+ Serial.println("tamanhos salvos sequencialmente em hexadecimal "+msg); 
+ Serial.println("mensagem recebida da configuração");
  
- uint8_t nroute = xroute.length();
- msg +=nroute;       
- 
- Serial.println(msg); //mostra o que existe na eprom;
+  msg +=xssid;        
+  msg +=xpassword;   
+  msg +=xIPbrok;      
+  msg +=xportbrok;   
+  msg +=xID;          
+  msg +=xroute;       
   
-Serial.println("mensagem recebida da configuração"); //mostra o que existe na eprom;
+  Serial.println("tamhhos em sequencia e informacoes em sequencia "+msg);
+  Serial.println("salvando na eeprom");
  
-  msg +=xssid;        Serial.println(msg); //mostra o que existe na eprom;
-  msg +=xpassword;    Serial.println(msg); //mostra o que existe na eprom;
-  msg +=xIPbrok;      Serial.println(msg); //mostra o que existe na eprom;
-  msg +=xportbrok;    Serial.println(msg); //mostra o que existe na eprom;
-  msg +=xID;          Serial.println(msg); //mostra o que existe na eprom;
-  msg +=xroute;       Serial.println(msg); //mostra o que existe na eprom;
-  
-  Serial.println(msg); //mostra o que existe na eprom;
- 
- //escreveString(0,msg); //escreve string na memoria não volátil ////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAGAR COMENTARIO
+ escreveString(0,msg); //escreve string na memoria não volátil ////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAGAR COMENTARIO
 
   flagglobal=1;//encerra servidor e rede
 }
