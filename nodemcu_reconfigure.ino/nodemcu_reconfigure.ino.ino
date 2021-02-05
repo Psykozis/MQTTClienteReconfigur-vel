@@ -83,7 +83,7 @@ void paginaconfig(){ //configura ponto de acesso, temporização, mantem conexã
           Serial.println(myIP);
   
             os_timer_setfn(&tmr0,func_timer, NULL);  //callback for timer
-            os_timer_arm(&tmr0, 210000, false);   //(timer, time for timer ms, repeat timer? (loop = true) //inicia timer
+            os_timer_arm(&tmr0, 60000, false);   //(timer, time for timer ms, repeat timer? (loop = true) //inicia timer
             
             while(flagglobal!=1){
                                     server.handleClient();
@@ -151,9 +151,9 @@ void handleForm() { //quando acontece um submit e a chamada do /action_page.php 
  msg += String(nid,HEX);
  Serial.println("tamanho do id "+nid);
     
- int nroute = xroute.length();
- msg += String(nroute,HEX);
- Serial.println("tamanho da rota "+nroute); 
+ //int nroute = xroute.length();
+ //msg += String(nroute,HEX);
+ //Serial.println("tamanho da rota "+nroute); 
  
  Serial.println("tamanhos salvos sequencialmente em hexadecimal "+msg); 
  Serial.println("mensagem recebida da configuração");
@@ -194,15 +194,14 @@ void escreveString(int enderecoBase, String mensagem){   // Salva a string nos e
        if(mensagem[i]!=EEPROM.read(i+enderecoBase)){ //escreve apenas se for diferente
             EEPROM.write(enderecoBase,mensagem[i]); // Escrevemos cada byte da string de forma sequencial na memória
             delay(200);
-            EEPROM.commit();//Salva o dado na EEPROM.
-       }     
+         }     
        enderecoBase++; // Deslocamos endereço base em uma posição a cada byte salvo
     }
      if(EEPROM.read(enderecoBase)!='\0'){
           EEPROM.write(enderecoBase,'\0'); // Salvamos marcador de fim da string 
           delay(200);
-          EEPROM.commit();//Salva o dado na EEPROM.
      }
+     EEPROM.commit();//Salva os dados na EEPROM.
      Serial.println ("salvo na eprom: "+mensagem);
    
   }
@@ -228,8 +227,77 @@ String leString(int enderecoBase){ // Lê os dados salvos na eeprom
 }
 //  HHHHHHHHHHHHH memória não volátil HHHHHHHHHHHHHHHHHHHHHHHHHHHH  
 
-void setup() {
+String Separastring(String mensagem, int num){
+  String msg="";
+  int inicio = 5; //6bytes de cabeçalho +1
+  int fim1= inicio+converte(mensagem[0]);
+  int fim2= fim1+converte(mensagem[1]);
+  int fim3= fim2+converte(mensagem[2]);
+  int fim4= fim3+converte(mensagem[3]);
+  int fim5= fim4+converte(mensagem[4]);
+  int fim6= mensagem.length()-1; 
+      
+  switch (num) {
+  case 1:
+    for(int i=inicio;i<fim1;i++) {
+       msg+=mensagem[i];
+    }
+    break;
+  case 2:
+    for(int i=fim1;i<fim2;i++) {
+       msg+=mensagem[i];
+    }
+    break;
+  case 3:
+    for(int i=fim2;i<fim3;i++) {
+           msg+=mensagem[i];
+    }
+    break;
+  case 4:
+    for(int i=fim3;i<fim4;i++) {
+         msg+=mensagem[i];
+    }    
+    break;
+  case 5:
+    for(int i=fim4;i<fim5;i++) {
+       msg+=mensagem[i];
+    }    
+    break;
+  case 6:
+        for(int i=fim5;i<fim6;i++) {
+            msg+=mensagem[i];
+        }    
+    break;        
   
+  default:
+        Serial.println("nenhum dado recebido");
+    break;
+}
+  return(msg);
+  }
+
+int converte(char a){
+  if(a == '0') return(0);
+  else if(a=='1') return(1);
+   else if(a=='2') return(2);
+    else if(a=='3')return(3);
+    else if(a=='4')return(4);
+    else if(a=='5')return(5);
+    else if(a=='6')return(6);
+    else if(a=='7')return(7);
+   else if(a=='8')return(8);
+    else if(a=='9')return(9);
+    else if(a=='a')return(10);
+    else if(a=='b')return(11);
+    else if(a=='c')return(12);
+    else if(a=='d')return(13);
+    else if(a=='e')return(14);
+    else if(a=='f')return(15);
+
+}    
+
+void setup() {
+  String msg;
   flagglobal=0; //inicia em zero para que a página e a rede sejam exibidas; quando em 1 segue a aplicação
  
   Serial.begin(115200);
@@ -238,11 +306,15 @@ void setup() {
   Serial.println("lendo eprom"+leString(0));//mostra o que existe na eprom ao iniciar;
   
   paginaconfig(); //abre página de configuração //configurando o cliente inicialmente como um ponto de acesso //depois de um tempo mata o ponto
-
-  Serial.println("lendo eprom"+leString(0)); //mostra o que existe na eprom;
-
- 
+  msg=leString(0);
+  Serial.println("lendo eprom"+msg); //mostra o que existe na eprom;
   
+  Serial.println("ssidwifi = "+Separastring(msg,1));
+  Serial.println("senha = "+Separastring(msg,2));
+  Serial.println("broker = "+Separastring(msg,3));
+  Serial.println("porta = "+Separastring(msg,4));
+  Serial.println("id = "+Separastring(msg,5));
+  Serial.println("rota = "+Separastring(msg,6));
 }
 
 void loop() {
