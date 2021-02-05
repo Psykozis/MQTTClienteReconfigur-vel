@@ -192,17 +192,26 @@ void escreveString(int enderecoBase, String mensagem){   // Salva a string nos e
   else{ // Caso seja possível armazenar 
     for (int i = 0; i<mensagem.length(); i++){ 
        if(mensagem[i]!=EEPROM.read(i+enderecoBase)){ //escreve apenas se for diferente
+            delay(500); //na escrita é bom utilizar 100ms mas to usando mais pra evitar os erros
             EEPROM.write(enderecoBase,mensagem[i]); // Escrevemos cada byte da string de forma sequencial na memória
-            delay(200);
-         }     
+       }     
        enderecoBase++; // Deslocamos endereço base em uma posição a cada byte salvo
     }
      if(EEPROM.read(enderecoBase)!='\0'){
+          delay(500); //na escrita é bom utilizar 100ms mas to usando mais pra evitar os erros
           EEPROM.write(enderecoBase,'\0'); // Salvamos marcador de fim da string 
-          delay(200);
      }
      EEPROM.commit();//Salva os dados na EEPROM.
      Serial.println ("salvo na eprom: "+mensagem);
+
+     for (int i=0; i< mensagem.length();i++){
+      if (mensagem[i]!=EEPROM.read(i+enderecoBase)){
+        Serial.println("erro no caractere "+i);
+        delay(500); //na escrita é bom utilizar 100ms mas to usando mais pra evitar os erros
+        EEPROM.write(enderecoBase,mensagem[i]); // Escrevemos cada byte da string de forma sequencial na memória
+        EEPROM.commit();//Salva os dados na EEPROM.
+        }
+      }
    
   }
 }
@@ -217,6 +226,7 @@ String leString(int enderecoBase){ // Lê os dados salvos na eeprom
   else { // Caso contrário, lemos byte a byte de cada endereço e montamos uma nova String
     char pos;
     do{
+      delay(500); //leitura precisa de um delay de 500ms a cada tentativa
       pos = EEPROM.read(enderecoBase); // Leitura do byte com base na posição atual
       enderecoBase++; // A cada leitura incrementamos a posição a ser lida
       mensagem = mensagem + pos; // Montamos string de saídaa
